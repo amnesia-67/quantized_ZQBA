@@ -27,8 +27,7 @@ def get_baseline_model(model_name, num_classes=10):
         model.fc = nn.Linear(model.fc.in_features, num_classes)
         
     elif model_name == "vgg16":
-        model = models.vgg16()
-        # Adapt for CIFAR-10's smaller spatial dimensions
+        model = models.vgg16_bn() # Swapped to the Batch Norm version
         model.features[0] = nn.Conv2d(3, 64, kernel_size=3, padding=1)
         model.classifier[6] = nn.Linear(4096, num_classes)
         
@@ -104,8 +103,11 @@ def main():
     model.to(device)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.1, momentum=0.9, weight_decay=5e-4)
-
+    
+    # VGG explodes with 0.1, throttle it to 0.01
+    initial_lr = 0.01 if args.arch == "vgg16" else 0.1
+    
+    optimizer = torch.optim.SGD(model.parameters(), lr=initial_lr, momentum=0.9, weight_decay=5e-4)
     scheduler = torch.optim.lr_scheduler.MultiStepLR(
         optimizer,
         milestones=[100, 150],
