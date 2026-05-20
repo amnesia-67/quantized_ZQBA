@@ -82,6 +82,8 @@ class WideResNet(nn.Module):
 
     def forward(self, x):
         x = self.quant(x) # Activate QuantStub fix
+        print("[=] DEBUG: Shape after quant: ", x.shape)
+        import sys; sys.exit()
         out = self.conv1(x)
         out = self.block1(out)
         out = self.block2(out)
@@ -96,3 +98,8 @@ class WideResNet(nn.Module):
         
         return logits
             
+if __name__ == "__main__":
+    model = WideResNet(num_classes=10)
+    dummy_input = torch.randn(1, 3, 32, 32)
+    print("pushing dummy tensor through network...")
+    model(dummy_input)
