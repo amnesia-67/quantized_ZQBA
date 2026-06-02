@@ -1,0 +1,17 @@
+# 1. Generate the splits
+python generate_ablation_splits.py
+
+# 2. Train the 4 Target Models
+python train_ablation.py --role target --split_file data_splits/Target_A_90.pt --save_name Target_A_90.pth
+python train_ablation.py --role target --split_file data_splits/Target_B_80.pt --save_name Target_B_80.pth
+python train_ablation.py --role target --split_file data_splits/Target_C_80.pt --save_name Target_C_80.pth
+python train_ablation.py --role target --split_file data_splits/Target_D_50.pt --save_name Target_D_50.pth
+
+# 3. Train the 4 Surrogate Models
+python train_ablation.py --role surrogate --split_file data_splits/Surrogate_A_20.pt --save_name Surrogate_A_20.pth
+python train_ablation.py --role surrogate --split_file data_splits/Surrogate_B_30_Small.pt --save_name Surrogate_B_30_Small.pth
+python train_ablation.py --role surrogate --split_file data_splits/Surrogate_C_30_Large.pt --save_name Surrogate_C_30_Large.pth
+python train_ablation.py --role surrogate --split_file data_splits/Surrogate_D_50.pt --save_name Surrogate_D_50.pth
+
+# 4. Evaluate and Plot
+python eval_ablation.py
