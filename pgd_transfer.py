@@ -47,13 +47,17 @@ def load_fake_quant_surrogate(path, device):
     model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
     model.maxpool = nn.Identity()
     
-    model.eval()
+    # MUST be in train mode for prepare_qat to attach observers
+    model.train() 
     model.fuse_model()
     model.qconfig = torch.quantization.get_default_qat_qconfig('fbgemm')
     torch.quantization.prepare_qat(model, inplace=True)
     
     # Load the float fake-quant state, DO NOT convert to int8
     model.load_state_dict(torch.load(path, map_location=device))
+    
+    # Switch to eval mode AFTER loading for the actual attack
+    model.eval()
     return model.to(device)
 
 def main():

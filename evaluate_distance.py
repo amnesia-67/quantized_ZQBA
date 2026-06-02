@@ -22,14 +22,16 @@ def load_qat_surrogate(path, device):
     model.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
     model.maxpool = nn.Identity()
     
-    # Prepare and convert to match the INT8 evaluation state saved in Changjun's code
-    model.eval()
+    # MUST be in train mode for prepare_qat
+    model.train()
     model.fuse_model()
     model.qconfig = torch.quantization.get_default_qat_qconfig('fbgemm')
     torch.quantization.prepare_qat(model, inplace=True)
     int8_model = torch.quantization.convert(model, inplace=False)
     
     int8_model.load_state_dict(torch.load(path, map_location=device))
+    
+    # Switch to eval mode AFTER loading for safe inference
     int8_model.eval()
     return int8_model.to(device)
 
